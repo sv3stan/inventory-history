@@ -160,7 +160,7 @@ npm run start
 
 **Ответ**:
 
-````json
+```json
 {
   "plu": "12345",
   "shop_id": "1",
@@ -171,8 +171,7 @@ npm run start
   "balance_in_order": 0,
   "timestamp": "2024-12-08T12:34:56.789Z"
 }
-
-
+```
 
 ### 4. Добавление товара
 
@@ -187,7 +186,7 @@ npm run start
   "plu": "12345",
   "action": "add"
 }
-````
+```
 
 **Ответ**:
 
