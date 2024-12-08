@@ -1,127 +1,87 @@
-﻿const API_URL = 'http://localhost:3000';
+﻿const API_URL = 'http://localhost:3002';
 
-document.getElementById('addShopForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const shopName = document.getElementById('shopName').value;
-  await fetch(`${API_URL}/shop`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: shopName }),
-  });
-  console.log('Shop added!');
-});
+let currentPage = 1;
+const limit = 10;
 
-// Add product
-document
-  .getElementById('addProductForm')
-  .addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const productPLU = document.getElementById('productPLU').value;
-    const productName = document.getElementById('productName').value;
-    await fetch(`${API_URL}/product`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ plu: productPLU, name: productName }),
-    });
-    console.log('Product added!');
-  });
+function changePage(direction) {
+  currentPage += direction;
+  if (currentPage <= 1) {
+    currentPage = 1;
+    document.getElementById('prevPage').disabled = true;
+  } else {
+    document.getElementById('prevPage').disabled = false;
+  }
+  document.getElementById('currentPage').textContent = currentPage;
+  searchHistory();
+}
 
-// Add stock
-document
-  .getElementById('addStockForm')
-  .addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const shopId = document.getElementById('shopId').value;
-    const productID = document.getElementById('productID').value;
-    const shelfQuantity = document.getElementById('shelfQuantity').value;
-    const orderQuantity = document.getElementById('orderQuantity').value;
-    await fetch(`${API_URL}/stocks`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        shop_id: shopId,
-        product_id: productID,
-        quantity_on_shelf: parseInt(shelfQuantity, 10),
-        quantity_in_order: parseInt(orderQuantity, 10),
-      }),
-    });
-    console.log('Stock added!');
-  });
+async function searchHistory() {
+  const shopId = document.getElementById('shop_id').value;
+  const plu = document.getElementById('plu').value;
+  const action = document.getElementById('action').value;
+  const dateFrom = document.getElementById('date_from').value;
+  const dateTo = document.getElementById('date_to').value;
 
-const updateStocksTable = (stocks) => {
-  const tableBody = document.querySelector('#stocksTable tbody');
+  const params = new URLSearchParams();
+  if (shopId) params.append('shop_id', shopId);
+  if (plu) params.append('plu', plu);
+  if (action) params.append('action', action);
+  if (dateFrom) params.append('date_from', dateFrom);
+  if (dateTo) params.append('date_to', dateTo);
+  params.append('page', currentPage);
+  params.append('limit', limit);
+
+  // const url = `/history?${params.toString()}`;
+
+  try {
+    const response = await fetch(`${API_URL}/history?${params.toString()}`);
+    // const response = await fetch(`${API_URL}/url`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Ошибка ${response.status}: ${errorText}`);
+    }
+    const data = await response.json();
+    renderTable(data.data);
+
+    document.getElementById('prevPage').disabled = currentPage === 1;
+    document.getElementById('nextPage').disabled = data.data.length < limit;
+  } catch (error) {
+    console.error('Произошла ошибка:', error);
+    alert('Не удалось загрузить данные.');
+  }
+}
+
+function renderTable(data) {
+  const tableBody = document.getElementById('resultsTable');
   tableBody.innerHTML = '';
-  stocks.forEach((stock) => {
+
+  if (data.length === 0) {
+    tableBody.innerHTML =
+      '<tr><td colspan="9">Нет данных для отображения</td></tr>';
+    return;
+  }
+
+  data.forEach((item) => {
     const row = document.createElement('tr');
     row.innerHTML = `
-            <td>${stock.shop_name}</td>
-            <td>${stock.product_name}</td>
-            <td>${stock.plu}</td>
-            <td>${stock.quantity_on_shelf}</td>
-            <td>${stock.quantity_in_order}</td>
-        `;
+      <td>${item.shop_id || '-'}</td>
+      <td>${item.plu || '-'}</td>
+      <td>${item.action || '-'}</td>
+      <td>${item.quantity_on_shelf || '-'}</td>
+      <td>${item.quantity_in_order || '-'}</td>
+      <td>${item.balance_on_shelf || '-'}</td>
+      <td>${item.balance_in_order || '-'}</td>
+      <td>${new Date(item.timestamp).toLocaleString()}</td>
+    `;
     tableBody.appendChild(row);
   });
-};
+}
 
-document
-  .getElementById('filterShopAndPLUForm')
-  .addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const shopId = document.getElementById('filterShopId').value;
-    const productPLU = document.getElementById('filterPLU').value;
-    const query = new URLSearchParams({
-      shop_id: shopId,
-      plu: productPLU,
-    }).toString();
-    const response = await fetch(`${API_URL}/stocks?${query}`);
-    const stocks = await response.json();
-    updateStocksTable(stocks);
-  });
-
-document
-  .getElementById('filterShelfForm')
-  .addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const quantityOnShelfMin =
-      document.getElementById('quantityOnShelfMin').value;
-    const quantityOnShelfMax =
-      document.getElementById('quantityOnShelfMax').value;
-
-    const query = new URLSearchParams({
-      quantity_on_shelf_min: quantityOnShelfMin,
-      quantity_on_shelf_max: quantityOnShelfMax,
-    }).toString();
-    const response = await fetch(`${API_URL}/stocks?${query}`);
-    const stocks = await response.json();
-    updateStocksTable(stocks);
-  });
-
-document
-  .getElementById('filterOrderForm')
-  .addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const quantityInOrderMin =
-      document.getElementById('quantityInOrderMin').value;
-    const quantityInOrderMax =
-      document.getElementById('quantityInOrderMax').value;
-
-    const query = new URLSearchParams({
-      quantity_in_order_min: quantityInOrderMin,
-      quantity_in_order_max: quantityInOrderMax,
-    }).toString();
-    const response = await fetch(`${API_URL}/stocks?${query}`);
-    const stocks = await response.json();
-    updateStocksTable(stocks);
-  });
-
-document.getElementById('clearFilters').addEventListener('click', (e) => {
-  document.getElementById('filterShopId').value = '';
-  document.getElementById('filterPLU').value = '';
-  document.getElementById('quantityInOrderMin').value = '';
-  document.getElementById('quantityInOrderMax').value = '';
-  document.getElementById('quantityOnShelfMin').value = '';
-  document.getElementById('quantityOnShelfMax').value = '';
-
-  updateStocksTable([]);
+document.addEventListener('DOMContentLoaded', function () {
+  let date_from = document.getElementById('date_from');
+  let date_to = document.getElementById('date_to');
+  const date = new Date();
+  const date_begin = new Date(2024, 1, 1);
+  date_from.valueAsDate = date_begin;
+  date_to.valueAsDate = date;
 });

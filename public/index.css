@@ -25,12 +25,17 @@
   }
 
   input,
-  button {
+  button,
+  select {
+      font-size: 16px;
       margin: 5px 0;
       padding: 5px;
   }
 
-
+  .navigation {
+      width: 30px;
+      height: 30px;
+  }
 
   .item_style {
       grid-column-start: span 1;
@@ -75,13 +80,13 @@
   }
 
   .table-output th {
-
+      border: var(--table-border-color);
       background-color: var(--table-bg-color);
       padding: 5px 5px;
   }
 
   .table-output td {
-
+      border: var(--table-border-color);
       background-color: var(--main-bg-color);
       padding: 5px 5px;
   }

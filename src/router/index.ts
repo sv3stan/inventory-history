@@ -1,32 +1,20 @@
 ﻿import express, { Request, Response } from 'express';
+import config from '../config';
 import { Pool } from 'pg';
-import dotenv from 'dotenv';
-
-import initializeDatabase from '../utils/dbInit';
 import rootRouter from './root';
 import stocksRouter from './stocks';
-import productRouter from './stocks';
-
-dotenv.config();
+import productRouter from './product';
+import historyRouter from './history';
 
 const router = express.Router();
 
-const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: parseInt(process.env.DB_PORT || '5432', 10),
-});
+const { createPool } = require('../utils/dbInit');
 
-initializeDatabase()
-  .then(() => console.log('Database initialized successfully'))
-  .catch((err: Error) =>
-    console.error('Error during database initialization:', err)
-  );
+const userPool = createPool(config.DB_NAME);
 
 router.get('/', rootRouter);
-router.use('/stocks', stocksRouter(pool));
-router.use('/product', productRouter(pool));
+router.use('/stocks', stocksRouter(userPool));
+router.use('/product', productRouter(userPool));
+router.get('/history', historyRouter(userPool));
 
 export default router;
