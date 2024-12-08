@@ -8,7 +8,7 @@ import historyRouter from './history';
 
 const router = express.Router();
 
-const { createPool } = require('../utils/dbInit');
+const { createPool } = require('../utils/dbinit');
 
 const userPool = createPool(config.DB_NAME);
 

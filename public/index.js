@@ -1,4 +1,4 @@
-﻿const API_URL = 'http://localhost:3002';
+﻿const API_URL = 'http://217.171.146.85:3002';
 
 let currentPage = 1;
 const limit = 10;

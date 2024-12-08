@@ -5,7 +5,7 @@ import config from '../config';
 import router from '../router/index';
 import createApp from './appcreate';
 import { serverShutdown } from './servershutdown';
-import { initializeDatabase, createPool } from './dbInit';
+import { initializeDatabase, createPool } from './dbinit';
 
 const startServer = async (): Promise<void> => {
   const adminPool = createPool(config.DB_NAME_MAIN);

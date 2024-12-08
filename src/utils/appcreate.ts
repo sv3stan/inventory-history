@@ -14,7 +14,8 @@ const createApp = () => {
 
   app.use(cors(corsOptions));
   app.use(express.json());
-  app.use(express.static(config.PUBLIC_PATH));
+  app.use(express.static(path.join(__dirname, '../../public')));
+  //app.use(express.static(config.PUBLIC_PATH));
   app.use(router);
   return app;
 };
