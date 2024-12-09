@@ -1,7 +1,6 @@
 ﻿const API_URL = 'http://217.171.146.85:3002';
 
 let currentPage = 1;
-const limit = 10;
 
 function changePage(direction) {
   currentPage += direction;
@@ -21,6 +20,7 @@ async function searchHistory() {
   const action = document.getElementById('action').value;
   const dateFrom = document.getElementById('date_from').value;
   const dateTo = document.getElementById('date_to').value;
+  const limit = document.getElementById('limit').value;
 
   const params = new URLSearchParams();
   if (shopId) params.append('shop_id', shopId);
@@ -32,7 +32,6 @@ async function searchHistory() {
   params.append('limit', limit);
 
   // const url = `/history?${params.toString()}`;
-
   try {
     const response = await fetch(`${API_URL}/history?${params.toString()}`);
     // const response = await fetch(`${API_URL}/url`);

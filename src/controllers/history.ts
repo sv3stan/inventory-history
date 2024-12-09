@@ -20,7 +20,6 @@ export const getHistory =
       const parsedPage = parseInt(page as string, 10) || 1;
       const parsedLimit = parseInt(limit as string, 10) || 10;
       const offset = (parsedPage - 1) * parsedLimit;
-
       const { whereClause, params } = buildQueryConditions(req.query);
 
       const queryText = `
