@@ -17,11 +17,11 @@ export const buildQueryConditions = (query: RequestQuery) => {
     params.push(String(query.action));
   }
   if (query.date_from) {
-    conditions.push(`timestamp >= $${params.length + 1}`);
+    conditions.push(`"timestamp" AT TIME ZONE 'UTC' >= $${params.length + 1}`);
     params.push(new Date(query.date_from as string));
   }
   if (query.date_to) {
-    conditions.push(`timestamp <= $${params.length + 1}`);
+    conditions.push(`"timestamp" AT TIME ZONE 'UTC' <= $${params.length + 1}`);
     params.push(new Date(query.date_to as string));
   }
 

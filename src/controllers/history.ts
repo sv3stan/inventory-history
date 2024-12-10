@@ -21,7 +21,6 @@ export const getHistory =
       const parsedLimit = parseInt(limit as string, 10) || 10;
       const offset = (parsedPage - 1) * parsedLimit;
       const { whereClause, params } = buildQueryConditions(req.query);
-
       const queryText = `
         SELECT *, COUNT(*) OVER () as total_count
         FROM history

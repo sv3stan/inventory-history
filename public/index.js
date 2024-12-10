@@ -1,4 +1,5 @@
-﻿const API_URL = 'http://217.171.146.85:3002';
+﻿// const API_URL = 'http://217.171.146.85:3002';
+const API_URL = 'http://localhost:3002';
 
 let currentPage = 1;
 
@@ -21,13 +22,25 @@ async function searchHistory() {
   const dateFrom = document.getElementById('date_from').value;
   const dateTo = document.getElementById('date_to').value;
   const limit = document.getElementById('limit').value;
-
   const params = new URLSearchParams();
+
+  let dateFromISO;
+  let dateToISO;
+
+  if (dateFrom) {
+    const dateFromUTC = new Date(dateFrom + 'T00:00:00Z');
+    dateFromISO = dateFromUTC.toISOString();
+  }
+  if (dateTo) {
+    const dateToUTC = new Date(dateTo + 'T23:59:59Z');
+    dateToISO = dateToUTC.toISOString();
+  }
+
   if (shopId) params.append('shop_id', shopId);
   if (plu) params.append('plu', plu);
   if (action) params.append('action', action);
-  if (dateFrom) params.append('date_from', dateFrom);
-  if (dateTo) params.append('date_to', dateTo);
+  if (dateFrom) params.append('date_from', dateFromISO);
+  if (dateTo) params.append('date_to', dateToISO);
   params.append('page', currentPage);
   params.append('limit', limit);
 
@@ -40,6 +53,7 @@ async function searchHistory() {
       throw new Error(`Ошибка ${response.status}: ${errorText}`);
     }
     const data = await response.json();
+    console.log(data);
     renderTable(data.data);
 
     document.getElementById('prevPage').disabled = currentPage === 1;
